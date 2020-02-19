@@ -1,19 +1,19 @@
 import React from 'react'
 import { useAction, useAtom } from "@reatom/react"
-import { removeItem, removeItemStarted, removeItemCompleted, removeItemFailed } from "./store/todoList"
+import { removeItem, removeItemEvents} from "./store/todoList"
 import { declareAtom, map } from '@reatom/core'
 
 const disabledAtom = declareAtom(/** @type {{[val: string]: boolean}} */({}), on => [
-	on(removeItemStarted, (state, id) => ({
+	on(removeItemEvents.started, (state, id) => ({
 		...state,
 		[id]: true,
 	})),
-	on(removeItemCompleted, (state, id) => {
+	on(removeItemEvents.completed, (state, id) => {
 		const res = {...state}
 		delete res[id]
 		return res
 	}),
-	on(removeItemFailed, (state, id) => ({
+	on(removeItemEvents.failed, (state, id) => ({
 		...state,
 		[id]: false,
 	})),

@@ -1,45 +1,22 @@
-import { Store, ActionCreator, PayloadActionCreator, declareAction, declareAtom } from "@reatom/core";
+import { ActionCreator, declareAction, declareAtom } from "@reatom/core";
 import { ListType } from "../../common/list";
 import { apiAtom } from "./todoApi";
+import { createAsyncAction } from "../core/createAsyncAction";
 
 let counter = 0
 
 /** @type {ActionCreator} */
 const addTodo = declareAction()
 
-/** @type {PayloadActionCreator<string>} */
-const removeItemStarted = declareAction()
-/** @type {PayloadActionCreator<string>} */
-const removeItemCompleted = declareAction()
-/** @type {PayloadActionCreator<string>} */
-const removeItemFailed = declareAction()
-
-/**
- * @param {string} itemId
- * @param {Store} store
- */
-async function removeItemImpl(itemId, store) {
-	store.dispatch(
-		removeItemStarted(itemId)
-	)
-
-	const api = store.getState(apiAtom)
-	const itemRemoved = await api.canRemoveItem(itemId)
-
-	if (itemRemoved)
-	{
-		store.dispatch(
-			removeItemCompleted(itemId)
-		)
+const [removeItem, removeItemEvents] = createAsyncAction(
+	/**
+	 * @param {string} itemId
+	 */
+	(itemId, store) => {
+		const api = store.getState(apiAtom)
+		return api.canRemoveItem(itemId)
 	}
-	else
-	{
-		store.dispatch(
-			removeItemFailed(itemId)
-		)
-	}
-}
-const removeItem = declareAction(removeItemImpl)
+)
 
 const todoListAtom = declareAtom(/** @type {ListType} */([]), on => [
 	on(addTodo, state => {
@@ -50,15 +27,13 @@ const todoListAtom = declareAtom(/** @type {ListType} */([]), on => [
 		counter++
 		return res
 	}),
-	on(removeItemCompleted, (state, payload) => state.filter(v => v.id !== payload))
+	on(removeItemEvents.completed, (state, payload) => state.filter(v => v.id !== payload))
 ])
 
 export {
 	addTodo,
 	todoListAtom,
 
-	removeItemStarted,
-	removeItemCompleted,
-	removeItemFailed,
 	removeItem,
+	removeItemEvents,
 }
