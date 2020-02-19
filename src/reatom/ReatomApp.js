@@ -1,53 +1,48 @@
-//@ts-check
-
-import React, {useMemo, useState} from 'react'
-import {createReatomStore, addItem, removeItem} from './createReatomStore.js'
-import {connector} from '../common/connector.js'
+import React, {useEffect} from 'react'
 import './ReatomApp.css'
-import { Store } from "@reatom/core";
+import { createStore } from "@reatom/core";
+import { useAtom, useAction, context } from "@reatom/react";
+import { todoAtom, titleAtom, setTitle} from './store/todo.js';
+import { todoListAtom, addTodo, removeItem } from './store/todoList.js';
+import { TodoItem } from './TodoItem';
 
-/**
- * @param {Array<{
- *   id: string,
- *   name: string,
- * }>} list
- * @param {Object<string, boolean>} listState
- * @param {Store} store
- */
-function prepareList(list, listState, store) {
-	return list.map(item => 
-<div>
-	<div>id: {item.id}</div>
-	<div>name: {item.name}</div>
-	<button 
-		onClick={() => store.dispatch(removeItem(item.id))} 
-		disabled={(listState[item.id] === undefined || !!listState[item.id]) ? false : true}
-	>Delete</button>
-</div>
-)
-}
+function ReatomAppImpl() {
+	const title = useAtom(titleAtom)
+	const handleSetTitle = useAction(setTitle)
 
-function ReatomApp() {
-	const [, redraw] = useState()
-	const {store, root} = useMemo(() => {
-		const {store: s, root} = createReatomStore(connector)
-		s.subscribe(root, redraw)
-		return {
-			store: s,
-			root,
-		}
-	}, [])
-	const {title, list, listState} = store.getState(root)
-	
+	const removeItemHandler = useAction(removeItem)
+	useEffect(() => {
+		setTimeout(() => {
+			handleSetTitle('hello world!')
+		}, 5000)
+	}, [handleSetTitle, removeItemHandler])
+
+	const list = useAtom(todoListAtom)
+	const handleAddItem = useAction(addTodo)
+
 	return (
 <div className="Reatom">
 	<h1>Reatom</h1>
 	<div>
 		<div>{title}</div>
-		<button onClick={() => store.dispatch(addItem())}>Add Task</button>
+		<button onClick={handleAddItem}>Add Task</button>
 	</div>
-	{prepareList(list, listState, store)}
+	{list.map(item => <TodoItem key={item.id} item={item}/>)}
 </div>
+);
+}
+
+function ReatomApp() {
+	const store = createStore(todoAtom)
+
+	store.subscribe(todoAtom, state => {
+		console.log(state)
+	})
+
+	return (
+<context.Provider value={store}>
+	{<ReatomAppImpl></ReatomAppImpl>}
+</context.Provider>
 );
 }
 
