@@ -3,12 +3,12 @@ import './ReatomApp.css'
 import { createStore, declareAtom, declareAction } from "@reatom/core";
 import { useAtom, useAction, context } from "@reatom/react";
 import { todoAtom, titleAtom, setTitle} from './store/todo.js';
-import { todoListAtom, addTodo, removeItemEvents} from './store/todoList.js';
+import { todoListAtom, addTodo, removeItem} from './store/todoList.js';
 import { TodoItem } from './TodoItem';
 
 const clearError = declareAction()
 const errorAtom = declareAtom('', on => [
-	on(removeItemEvents.failed, (_, payload) => `can't remove item: ${payload}`),
+	on(removeItem.failed, (_, payload) => `can't remove item: ${payload}`),
 	on(clearError, () => '')
 ])
 

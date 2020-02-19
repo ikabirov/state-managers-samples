@@ -1,20 +1,25 @@
 import { ActionCreator, declareAction, declareAtom } from "@reatom/core";
 import { ListType } from "../../common/list";
 import { apiAtom } from "./todoApi";
-import { createAsyncAction } from "../core/createAsyncAction";
+import { declareAsyncAction } from "../core/declareAsyncAction";
 
 let counter = 0
 
 /** @type {ActionCreator} */
 const addTodo = declareAction()
 
-const [removeItem, removeItemEvents] = createAsyncAction(
+const removeItem = declareAsyncAction(
 	/**
 	 * @param {string} payload
 	 */
-	(payload, store) => {
+	async (payload, store) => {
 		const api = store.getState(apiAtom)
-		return api.canRemoveItem(payload)
+		const success = await api.canRemoveItem(payload)
+
+		return {
+			success,
+			data: payload,
+		}
 	}
 )
 
@@ -27,13 +32,11 @@ const todoListAtom = declareAtom(/** @type {ListType} */([]), on => [
 		counter++
 		return res
 	}),
-	on(removeItemEvents.completed, (state, payload) => state.filter(v => v.id !== payload))
+	on(removeItem.completed, (state, payload) => state.filter(v => v.id !== payload))
 ])
 
 export {
 	addTodo,
 	todoListAtom,
-
 	removeItem,
-	removeItemEvents,
 }
