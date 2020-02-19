@@ -33,10 +33,15 @@ function ReatomAppImpl() {
 }
 
 function ReatomApp() {
-	const store = createStore(todoAtom)
+	const savedState = localStorage.getItem("app_store")
+	const state = savedState
+		? JSON.parse(savedState)
+		: undefined
+
+	const store = createStore(todoAtom, state)
 
 	store.subscribe(todoAtom, state => {
-		console.log(state)
+		localStorage.setItem("app_store", JSON.stringify(store.getState()))
 	})
 
 	return (
