@@ -10,11 +10,11 @@ const addTodo = declareAction()
 
 const [removeItem, removeItemEvents] = createAsyncAction(
 	/**
-	 * @param {string} itemId
+	 * @param {string} payload
 	 */
-	(itemId, store) => {
+	(payload, store) => {
 		const api = store.getState(apiAtom)
-		return api.canRemoveItem(itemId)
+		return api.canRemoveItem(payload)
 	}
 )
 

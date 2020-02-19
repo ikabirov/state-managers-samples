@@ -1,27 +1,36 @@
 import React, {useEffect} from 'react'
 import './ReatomApp.css'
-import { createStore } from "@reatom/core";
+import { createStore, declareAtom, declareAction } from "@reatom/core";
 import { useAtom, useAction, context } from "@reatom/react";
 import { todoAtom, titleAtom, setTitle} from './store/todo.js';
-import { todoListAtom, addTodo, removeItem } from './store/todoList.js';
+import { todoListAtom, addTodo, removeItemEvents} from './store/todoList.js';
 import { TodoItem } from './TodoItem';
+
+const clearError = declareAction()
+const errorAtom = declareAtom('', on => [
+	on(removeItemEvents.failed, (_, payload) => `can't remove item: ${payload}`),
+	on(clearError, () => '')
+])
 
 function ReatomAppImpl() {
 	const title = useAtom(titleAtom)
 	const handleSetTitle = useAction(setTitle)
 
-	const removeItemHandler = useAction(removeItem)
+	const error = useAtom(errorAtom)
+	const handleClearError = useAction(clearError)
+
 	useEffect(() => {
 		setTimeout(() => {
 			handleSetTitle('hello world!')
 		}, 5000)
-	}, [handleSetTitle, removeItemHandler])
+	}, [handleSetTitle])
 
 	const list = useAtom(todoListAtom)
 	const handleAddItem = useAction(addTodo)
 
 	return (
 <div className="Reatom">
+	<div onClick={handleClearError}>{error || 'No errors'}</div>
 	<h1>Reatom</h1>
 	<div>
 		<div>{title}</div>
