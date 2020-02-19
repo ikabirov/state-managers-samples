@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAction, useAtom } from "@reatom/react"
 import { removeItem } from "./store/todoList"
 import { declareAtom, map } from '@reatom/core'
@@ -28,6 +28,7 @@ const disabledAtom = declareAtom(/** @type {{[val: string]: boolean}} */({}), on
  * }} param0
  */
 function TodoItem({item}) {
+	//const disabled = useSideEffectPendingState(removeItem, payload => payload == item.id)
 	const disabled = useAtom(
 		map(
 			`todo #${item.id} disabled`,
