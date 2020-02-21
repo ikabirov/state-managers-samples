@@ -5,6 +5,7 @@ import { useAtom, useAction, context } from "@reatom/react";
 import { todoAtom, titleAtom, setTitle} from './store/todo.js';
 import { todoListAtom, addTodo, removeItem} from './store/todoList.js';
 import { TodoItem } from './TodoItem';
+import { connectReduxDevtools } from '@reatom/debug'
 
 const clearError = declareAction()
 const errorAtom = declareAtom('', on => [
@@ -48,6 +49,7 @@ function ReatomApp() {
 		: undefined
 
 	const store = createStore(todoAtom, state)
+	useEffect(() => connectReduxDevtools(store), [store])
 
 	store.subscribe(todoAtom, state => {
 		localStorage.setItem("app_store", JSON.stringify(store.getState()))
